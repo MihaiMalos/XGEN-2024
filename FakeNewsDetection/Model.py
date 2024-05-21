@@ -27,8 +27,8 @@ new_df = train[['text', 'label']]
 
 # Defining some key variables that will be used later on in the training
 MAX_LEN = 256
-TRAIN_BATCH_SIZE = 8
-VALID_BATCH_SIZE = 4
+TRAIN_BATCH_SIZE = 20
+VALID_BATCH_SIZE = 20
 # EPOCHS = 1
 LEARNING_RATE = 1e-05
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base', truncation=True, do_lower_case=True)
@@ -37,8 +37,8 @@ class SentimentData(Dataset):
     def __init__(self, dataframe, tokenizer, max_len):
         self.tokenizer = tokenizer
         self.data = dataframe
-        self.text = dataframe.Phrase
-        self.targets = self.data.Sentiment
+        self.text = dataframe.text
+        self.targets = self.data.label
         self.max_len = max_len
 
     def __len__(self):
@@ -77,6 +77,7 @@ print("FULL Dataset: {}".format(new_df.shape))
 print("TRAIN Dataset: {}".format(train_data.shape))
 print("TEST Dataset: {}".format(test_data.shape))
 
+print(type(train_data))
 training_set = SentimentData(train_data, tokenizer, MAX_LEN)
 testing_set = SentimentData(test_data, tokenizer, MAX_LEN)
 
@@ -101,7 +102,7 @@ class RobertaClass(torch.nn.Module):
         self.l1 = RobertaModel.from_pretrained("roberta-base")
         self.pre_classifier = torch.nn.Linear(768, 768)
         self.dropout = torch.nn.Dropout(0.3)
-        self.classifier = torch.nn.Linear(768, 5)
+        self.classifier = torch.nn.Linear(768, 2)
 
     def forward(self, input_ids, attention_mask, token_type_ids):
         output_1 = self.l1(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
@@ -205,11 +206,10 @@ def valid(model, testing_loader):
 acc = valid(model, testing_loader)
 print("Accuracy on test data = %0.2f%%" % acc)
 
-output_model_file = 'pytorch_roberta_sentiment.bin'
-output_vocab_file = './'
+output_model_file = 'model/fake_news.bin'
+output_vocab_file = './model/tokenizer'
 
-model_to_save = model
-torch.save(model_to_save, output_model_file)
-tokenizer.save_vocabulary(output_vocab_file)
+tokenizer.save_pretrained(output_vocab_file)
+torch.save(model.state_dict(), output_model_file)
 
 print('All files saved')
