@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CsvHandlerComponent } from './uploader/uploader.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,

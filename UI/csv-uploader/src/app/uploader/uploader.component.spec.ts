@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UploaderComponent } from './uploader.component';
+import { CsvHandlerComponent } from './uploader.component';
 
 describe('UploaderComponent', () => {
-  let component: UploaderComponent;
-  let fixture: ComponentFixture<UploaderComponent>;
+  let component: CsvHandlerComponent;
+  let fixture: ComponentFixture<CsvHandlerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UploaderComponent]
+      imports: [CsvHandlerComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(UploaderComponent);
+    fixture = TestBed.createComponent(CsvHandlerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

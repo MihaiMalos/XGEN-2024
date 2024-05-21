@@ -2,11 +2,24 @@
     <input type="file" (change)="onFileChange($event)" accept=".csv" />
     <button (click)="saveCSV()">Save Changes</button>
     <table *ngIf="csvData.length">
-      <tr *ngFor="let row of csvData; let rowIndex = index">
-        <td *ngFor="let cell of row; let cellIndex = index">
-          <input [value]="cell" (input)="onCellEdit($event, rowIndex, cellIndex)" />
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th *ngFor="let header of csvData[0]">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of csvData.slice(1); let rowIndex = index">
+          <td *ngFor="let cell of row; let cellIndex = index">
+            <span *ngIf="cellIndex !== labelIndex">{{ cell }}</span>
+            <mat-form-field *ngIf="cellIndex === labelIndex">
+                <mat-select [value]="cell" (selectionChange)="onCellEdit($event, rowIndex + 1, cellIndex)" [compareWith]="compareFn">
+                  <mat-option [value]="0">False</mat-option>
+                  <mat-option [value]="1">True</mat-option>
+                </mat-select>
+              </mat-form-field>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
   

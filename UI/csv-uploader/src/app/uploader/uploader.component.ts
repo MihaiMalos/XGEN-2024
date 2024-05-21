@@ -1,17 +1,21 @@
 
 import { Component } from '@angular/core';
 import *  as Papa from 'papaparse';
-import { NgIf } from '@angular/common';
-import { NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import {MatSelectModule} from '@angular/material/select';
+import { MatFormField } from '@angular/material/select';
+import { MatOption } from '@angular/material/select';
 @Component({
   selector: 'app-uploader',
   standalone: true,
-  imports: [NgIf,NgFor],
+  imports: [CommonModule,MatSelectModule,MatFormField,MatOption],
   templateUrl: './uploader.component.html',
   styleUrl: './uploader.component.scss'
 })
 export class CsvHandlerComponent {
   csvData: string[][] = [];
+  labelIndex: number | null = null;
 
   onFileChange(event: any) {
     const file = event.target.files[0];
@@ -19,15 +23,25 @@ export class CsvHandlerComponent {
       Papa.parse(file, {
         complete: (result: Papa.ParseResult<string[]>) => {
           this.csvData = result.data;
+          this.identifyLabelIndex();
         },
         header: false
       });
     }
   }
-  onCellEdit(event: any, rowIndex: number, cellIndex: number) {
-    this.csvData[rowIndex][cellIndex] = event.target.value;
+  identifyLabelIndex() {
+    if (this.csvData.length > 0) {
+      this.labelIndex = this.csvData[0].indexOf('label');
+    }
   }
-  saveCSV() {
+  compareFn(optionValue: number, cellValue: string): boolean {
+    return optionValue === parseInt(cellValue, 10);
+  }
+  onCellEdit(event: any, rowIndex: number, cellIndex: number) {
+    if (this.labelIndex !== null && cellIndex === this.labelIndex) {
+      this.csvData[rowIndex][cellIndex] = event.value;
+    }
+  }  saveCSV() {
     const csv = Papa.unparse(this.csvData);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
