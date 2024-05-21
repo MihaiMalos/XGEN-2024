@@ -1,0 +1,12 @@
+<div>
+    <input type="file" (change)="onFileChange($event)" accept=".csv" />
+    <button (click)="saveCSV()">Save Changes</button>
+    <table *ngIf="csvData.length">
+      <tr *ngFor="let row of csvData; let rowIndex = index">
+        <td *ngFor="let cell of row; let cellIndex = index">
+          <input [value]="cell" (input)="onCellEdit($event, rowIndex, cellIndex)" />
+        </td>
+      </tr>
+    </table>
+  </div>
+  
