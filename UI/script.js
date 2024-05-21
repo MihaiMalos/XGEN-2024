@@ -18,6 +18,7 @@ function handleFileSelect(event) {
 }
 
 function displayCSVContent(data) {
-    const output = document.getElementById('csvOutput');
-    output.textContent = JSON.stringify(data, null, 2); // Pretty-print JSON
+    //const output = document.getElementById('csvOutput');
+    //output.textContent = JSON.stringify(data, null, 2); // Pretty-print JSON
+    console.log(JSON.stringify(data, null, 2));
 }
