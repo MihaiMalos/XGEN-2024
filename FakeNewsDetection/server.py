@@ -56,7 +56,7 @@ def get_table():
 
     # Convertim datele tabelului într-un CSV
     csv_buffer = io.StringIO()
-    df.to_csv(csv_buffer, index=False)
+    df.to_csv(csv_buffer, index=False, header=False)
     csv_buffer.seek(0)
 
     return send_file(
