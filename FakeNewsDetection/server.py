@@ -202,4 +202,4 @@ def process_text():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # load_csv_to_db('LocalDataSet.csv', 'LocalDataSet', DATABASE_URL)
+    #load_csv_to_db('FakeReal.csv', 'FakeReal', DATABASE_URL)

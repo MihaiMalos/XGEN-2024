@@ -1,11 +1,14 @@
 <div>
-  <label for="dataSets">Data Sets</label>
-  <select id="dataSets" [(ngModel)]="tableName" (change)="fetchTable()">
-    <option *ngFor="let dataSet of dataSets" [ngValue]="dataSet">{{ dataSet }}</option>
-  </select>
-</div>
-<div>
-    <button (click)="saveCSV()">Save Changes</button>
+  <mat-toolbar>
+    <span class="title">DataSets</span>
+  </mat-toolbar>
+    <br>
+    
+    <select id="dataSets" [(ngModel)]="tableName" (change)="fetchTable()">
+      <option *ngFor="let dataSet of dataSets" [ngValue]="dataSet">{{ dataSet }}</option>
+    </select>
+
+    <button class="savebutton" (click)="saveCSV()">Save Changes</button>
     <table *ngIf="csvData.length">
       <thead>
         <tr>

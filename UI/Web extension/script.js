@@ -60,11 +60,13 @@ function displayArticles() {
     articlesList.forEach((article, index) => {
         const listItem = document.createElement('li');
         listItem.innerHTML = `
-            <span>${article}</span>
-            <select class="articleLabel" data-title="${article}" id="label-${index}">
-                <option value="true">True</option>
-                <option value="false">False</option>
-            </select>
+            <div class="article-container">
+                <span>${article}</span>
+                <select class="articleLabel" data-title="${article}" id="label-${index}">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
         `;
         articlesListElement.appendChild(listItem);
     });

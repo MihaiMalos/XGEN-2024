@@ -2,18 +2,20 @@
 import { Component, OnInit } from '@angular/core';
 import *  as Papa from 'papaparse';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import {MatSelectModule} from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatFormField } from '@angular/material/select';
 import { MatOption } from '@angular/material/select';
-import { table } from 'console';
 import { Observable } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 @Component({
   selector: 'app-uploader',
   standalone: true,
-  imports: [FormsModule,CommonModule,MatSelectModule,MatFormField,MatOption],
+  imports: [FormsModule, CommonModule, MatSelectModule, MatFormField, MatOption, MatIconModule, MatButtonModule, MatToolbarModule, MatSelect],
   templateUrl: './uploader.component.html',
   styleUrl: './uploader.component.scss'
 })
