@@ -226,7 +226,7 @@ class WebScraper:
                             article['text'] = self.extract_text_from_website6(article_soup)
 
                         if article['text'] is None:
-                            article['text'] = "Article text not found."
+                            article['text'] = article['title']
 
                     articles.append(article)
 

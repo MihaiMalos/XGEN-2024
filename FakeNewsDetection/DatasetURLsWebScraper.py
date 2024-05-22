@@ -1,3 +1,10 @@
+import re
+from urllib.parse import urljoin
+
+import requests
+from bs4 import BeautifulSoup
+
+
 class DatasetScraper:
     def __init__(self, url):
         self._url = url

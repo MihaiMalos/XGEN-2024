@@ -1,4 +1,3 @@
-import sqlalchemy
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import sqlite3
@@ -9,8 +8,9 @@ import csv
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 DATABASE_URL = 'test.db'
-import GoogleNewsWebScraper as scraper
-
+from GoogleNewsWebScraper import WebScraper
+from ModelInference import RobertaInference
+model_inference = RobertaInference()
 
 @app.route('/get_datasets', methods=['GET'])
 def get_datasets():
@@ -76,9 +76,9 @@ def scrape_site():
 
     # Apelarea scraper-ului pentru a obține articolele
     global articles
+    scraper = WebScraper(website_link)
     articles = scraper.extract_articles_from_page(website_link)
     article_titles = [article['title'] for article in articles]
-    print (article_titles)
     return jsonify(article_titles)
 
 
@@ -187,17 +187,19 @@ def load_csv_to_db(filepath, table_name, db_path):
     # Salvează modificările și închide conexiunea
     conn.commit()
     conn.close()
+
 @app.route('/process_text', methods=['POST'])
 def process_text():
     data = request.json
     text = data.get('text')
     if not text:
         return jsonify({"error": "No text provided"}), 400
-
+    print (text)
     # Procesarea textului (aici doar ca exemplu inversăm textul)
-    processed_text = text[::-1]
+    processed_text = model_inference.run(text)
 
     return jsonify({"processedText": processed_text})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    load_csv_to_db('LocalDataSet.csv', 'LocalDataSet', DATABASE_URL)

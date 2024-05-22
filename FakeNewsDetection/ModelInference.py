@@ -29,7 +29,7 @@ class RobertaInference:
         self._tokenizer = RobertaTokenizer.from_pretrained("./model/tokenizer")
 
         self._model = RobertaClass()
-        self._model.load_state_dict(torch.load('./model/fake_news.bin'))
+        self._model.load_state_dict(torch.load('./model/fake_news.bin', map_location=device))
         self._model.to(device)
         self._model.eval()
 
@@ -40,6 +40,6 @@ class RobertaInference:
             ids = data['input_ids'].to(device, dtype=torch.long)
             mask = data['attention_mask'].to(device, dtype=torch.long)
 
-            outputs = model(ids, mask)
+            outputs = self._model(ids, mask)
 
-            return "True" if torch.argmax(outputs).item() == 1 else "False"
+            return "Real" if torch.argmax(outputs).item() == 1 else "Fake"
