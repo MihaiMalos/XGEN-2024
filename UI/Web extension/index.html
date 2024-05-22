@@ -1,28 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dataSets</title>
+    <title>Data Sets</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <div>
+    <div class="container">
         <h2>Select DataSet:</h2>
-        <select id="dataSets">
-            <!-- Options will be populated dynamically -->
-        </select>
-        <h2>Select Value:</h2>
-        <select id="selectedValue">
-            <option value="true">True</option>
-            <option value="false">False</option>
-        </select>
-        <button id="sendRequestButton">Send Request</button>
+        <div class="select-container">
+            <select id="dataSets">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+        <div class="input-container">
+            <input type="text" id="inputText" placeholder="Enter text">
+            <button id="processTextButton">Predict</button>
+        </div>
+
+        <div class="button-container">
+            <button id="sendRequestButton">Scrape Site</button>
+        </div>
+
+        <div id="articlesContainer" style="display: none;">
+            <h2>Articles</h2>
+            <div id="loadingMessage" style="display: none;">Loading articles, please wait...</div>
+            <ul id="articlesList"></ul>
+        </div>
+        
+        <div class="button-container">
+            <button id="submitArticlesButton">Submit Articles</button>
+        </div>
     </div>
 
+    <script src="script.js"></script>
 </body>
-<script src="script.js"></script>
-
 </html>

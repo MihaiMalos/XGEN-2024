@@ -5,10 +5,11 @@ import sqlite3
 import pandas as pd
 import os
 import io
-
+import csv
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 DATABASE_URL = 'test.db'
+import GoogleNewsWebScraper as scraper
 
 
 @app.route('/get_datasets', methods=['GET'])
@@ -23,7 +24,7 @@ def get_datasets():
         tables = cursor.fetchall()
 
         # Create datasets using table names
-        dataSets = [{"text": table[0]} for table in tables]
+        dataSets = [table[0] for table in tables]
         print(dataSets)
         return jsonify(dataSets)
     except Exception as e:
@@ -65,38 +66,53 @@ def get_table():
         download_name=f'{table_name}.csv'
     )
 
-@app.route('/submit_dataset', methods=['POST'])
-def submit_dataset():
+articles = []
+@app.route('/scrape_site', methods=['POST'])
+def scrape_site():
     data = request.json
-    # primestete numele si un link
-    selected_dataset = data.get('selectedDataSet')
     website_link = data.get('siteLink')
-    label = data.get('selectedValue')
-    print(selected_dataset)
-    print(website_link)
-    print(label)
-    # apelez web scraperu cu linku respectiv
-    # Definirea valorilor pentru rândul nou
-    title = "Test Title"
-    text = "This is a test text."
-    subject = "Test Subject"
-    date = "2024-05-21"  # Formatul datei depinde de cum este definit în baza de date
-    label = 1
+    if not website_link:
+        return jsonify({"error": "No site link provided"}), 400
+
+    # Apelarea scraper-ului pentru a obține articolele
+    global articles
+    articles = scraper.extract_articles_from_page(website_link)
+    article_titles = [article['title'] for article in articles]
+    print (article_titles)
+    return jsonify(article_titles)
+
+
+@app.route('/submit_articles', methods=['POST'])
+def submit_articles():
+    data = request.json
+    selected_dataset = data.get('selectedDataSet')
+    labels = data.get('labels')
+    print(labels)
+    global articles
+
+    if not selected_dataset or not articles:
+        return jsonify({"error": "Dataset name or articles not provided"}), 400
+
     con = sqlite3.connect(DATABASE_URL)
     cur = con.cursor()
-    # Executarea comenzii SQL de inserare
-    cur.execute("""
-        INSERT INTO DataSet2 (title, text, subject, Date, label) 
-        VALUES (?, ?, ?, ?, ?)
-        """, (title, text, subject, date, label))
+
+    for index in range(len(articles)):
+        title = articles[index].get('title')
+        text = articles[index].get('text')
+        source = articles[index].get('source')
+        subject = "News"
+        date = articles[index].get('timestamp')
+        label = labels[index]
+
+        # Executarea comenzii SQL de inserare
+        cur.execute(f"INSERT INTO {selected_dataset} VALUES (?, ?, ?, ?, ?,?)", (title, text, subject, date, label,source))
 
     # Salvarea modificărilor
     con.commit()
-
     # Închiderea conexiunii
     con.close()
-    return jsonify({"status": "success", "selectedDataSet": selected_dataset})
 
+    return jsonify({"status": "success", "selectedDataSet": selected_dataset})
 
 @app.route('/save-csv', methods=['POST'])
 def save_csv_to_database():
@@ -127,12 +143,12 @@ def save_csv_to_database():
                     # Actualizează rândul existent
                     cursor.execute(f"""
                         UPDATE {table_name}
-                        SET text = ?, subject = ?, date = ?, label = ?
+                        SET text = ?, subject = ?, date = ?, label = ?, source = ?
                         WHERE title = ?
                     """, (*values[1:], title))
                 else:
                     # Inserează un rând nou
-                    cursor.execute(f"INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?)", values)
+                    cursor.execute(f"INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?, ?)", values)
 
         conn.commit()
         return jsonify({"success": True}), 200
@@ -143,37 +159,45 @@ def save_csv_to_database():
         conn.close()
 
 
-@app.route('/upload_csv', methods=['POST'])
-def upload_csv():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join('/tmp', filename)
-        file.save(filepath)
-
-        # Încarcă fișierul CSV în baza de date
-        load_csv_to_db(filepath, 'my_table')
-        os.remove(filepath)  # Șterge fișierul după ce a fost încărcat
-
-        return jsonify({"status": "success", "message": "File uploaded and data inserted into database"}), 200
-
-    return jsonify({"error": "File type not allowed"}), 400
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv'}
 
 
-def load_csv_to_db(filepath, table_name):
-    df = pd.read_csv(filepath)
-    df.to_sql(table_name, engine, if_exists='replace', index=False)
+def load_csv_to_db(filepath, table_name, db_path):
+    # Conectează-te la baza de date SQLite
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
+    # Citește primul rând din fișierul CSV pentru a obține numele coloanelor
+    with open(filepath, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        headers = next(reader)  # presupune că primul rând este header-ul
+        print (headers)
+        # Creează tabela, eliminând-o dacă există deja
+        cursor.execute(f'DROP TABLE IF EXISTS {table_name}')
+        columns = ', '.join([f'"{header}" TEXT' for header in headers])
+        cursor.execute(f'CREATE TABLE {table_name} ({columns})')
+
+        # Citește rândurile din CSV și inserează-le în tabelă
+        for row in reader:
+            placeholders = ', '.join('?' * len(row))
+            cursor.execute(f'INSERT INTO {table_name} VALUES ({placeholders})', row)
+
+    # Salvează modificările și închide conexiunea
+    conn.commit()
+    conn.close()
+@app.route('/process_text', methods=['POST'])
+def process_text():
+    data = request.json
+    text = data.get('text')
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    # Procesarea textului (aici doar ca exemplu inversăm textul)
+    processed_text = text[::-1]
+
+    return jsonify({"processedText": processed_text})
 
 if __name__ == '__main__':
     app.run(debug=True)

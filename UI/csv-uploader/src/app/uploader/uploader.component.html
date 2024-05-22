@@ -1,8 +1,7 @@
-
 <div>
   <label for="dataSets">Data Sets</label>
-  <select id="dataSets" [(ngModel)]="tableName">
-    <option *ngFor="let dataSet of dataSets" [value]="dataSet">{{ dataSet }}</option>
+  <select id="dataSets" [(ngModel)]="tableName" (change)="fetchTable()">
+    <option *ngFor="let dataSet of dataSets" [ngValue]="dataSet">{{ dataSet }}</option>
   </select>
 </div>
 <div>
@@ -28,4 +27,3 @@
       </tbody>
     </table>
   </div>
-  
