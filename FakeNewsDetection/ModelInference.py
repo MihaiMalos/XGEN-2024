@@ -34,6 +34,9 @@ class RobertaInference:
         self._model.eval()
 
     def run(self, sentence):
+        words = sentence.split()
+        truncated_words = words[:370]
+        sentence = ' '.join(truncated_words)
         inputs = self._tokenizer(sentence, return_tensors="pt").to(device)
         with torch.no_grad():
             data = inputs

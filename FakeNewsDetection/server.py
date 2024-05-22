@@ -201,5 +201,5 @@ def process_text():
     return jsonify({"processedText": processed_text})
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    load_csv_to_db('LocalDataSet.csv', 'LocalDataSet', DATABASE_URL)
+    app.run(debug=True)
+    # load_csv_to_db('LocalDataSet.csv', 'LocalDataSet', DATABASE_URL)
